@@ -1,0 +1,1568 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Detection - MITRE ATT&CK Navigator</title>
+
+<style>
+:root {
+    --bg:#09111f;
+    --panel:#111e30;
+    --panel2:#192941;
+    --border:#293b54;
+    --text:#e6edf7;
+    --muted:#91a4bc;
+    --blue:#38a5f5;
+    --green:#21bd83;
+    --yellow:#e9b94e;
+    --red:#ed6975;
+}
+
+* {box-sizing:border-box}
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial, sans-serif;
+}
+
+header {
+    padding:18px 25px;
+    background:#111c2d;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.logo {font-size:20px;font-weight:bold}
+.logo span {color:var(--blue)}
+header small {color:var(--muted)}
+
+.container {padding:22px;max-width:1800px;margin:auto}
+
+h2 {font-size:18px;margin-top:0}
+h3 {font-size:14px}
+
+.muted {color:var(--muted);font-size:12px}
+
+.panel {
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.stats {
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.stat {
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:16px;
+}
+
+.stat small {color:var(--muted)}
+.stat strong {display:block;font-size:27px;margin-top:8px}
+.blue {color:var(--blue)}
+.green {color:var(--green)}
+.yellow {color:var(--yellow)}
+.red {color:var(--red)}
+
+textarea,input,select {
+    background:#091525;
+    border:1px solid var(--border);
+    color:white;
+    border-radius:5px;
+    padding:10px;
+    outline:none;
+}
+
+textarea {
+    width:100%;
+    height:145px;
+    resize:vertical;
+    font-family:monospace;
+}
+
+input:focus,select:focus,textarea:focus {
+    border-color:var(--blue);
+}
+
+button {
+    border:0;
+    padding:10px 14px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:12px;
+    margin:5px 3px 0 0;
+}
+
+button:hover {opacity:.85}
+
+.primary {background:var(--blue);color:#071525}
+.secondary {background:var(--panel2);color:white;border:1px solid var(--border)}
+.success {background:#176b50;color:white}
+.danger {background:#74323b;color:white}
+
+.toolbar {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    margin:12px 0;
+}
+
+.toolbar input {flex:1;min-width:180px}
+.toolbar select {min-width:150px}
+
+.status {
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:4px;
+    font-size:11px;
+    background:#24364e;
+    color:#b6c9df;
+}
+
+.status.online {background:#124a3c;color:#62e5b4}
+
+.progress {
+    height:7px;
+    background:#26364a;
+    border-radius:8px;
+    overflow:hidden;
+    margin-top:9px;
+}
+
+.progress div {
+    height:100%;
+    background:var(--green);
+    transition:width .3s;
+}
+
+.two-col {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+/* MITRE MATRIX */
+
+.matrix-shell {
+    background:#080f1b;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px;
+    overflow:hidden;
+}
+
+.matrix-scroll {
+    overflow-x:auto;
+    padding-bottom:15px;
+}
+
+.matrix {
+    display:grid;
+    grid-template-columns:repeat(14,minmax(190px,1fr));
+    gap:9px;
+    min-width:2800px;
+    align-items:start;
+}
+
+.tactic-column {
+    background:#111e30;
+    border:1px solid #30435d;
+    border-radius:6px;
+    overflow:hidden;
+}
+
+.tactic-header {
+    background:#20334c;
+    padding:12px 9px;
+    min-height:70px;
+    border-bottom:2px solid #48617e;
+}
+
+.tactic-header strong {
+    font-size:12px;
+    display:block;
+    line-height:1.4;
+}
+
+.tactic-header small {
+    color:#9cb3cb;
+    font-size:10px;
+    display:block;
+    margin-top:5px;
+}
+
+.tech-list {
+    padding:7px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.tech-card {
+    border:1px solid #34465d;
+    border-left:3px solid #52647a;
+    background:#1b2b40;
+    border-radius:4px;
+    padding:8px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.tech-card:hover {
+    border-color:var(--blue);
+    background:#263c58;
+}
+
+.tech-card.covered {
+    background:#124a3b;
+    border-color:#239a70;
+    border-left:4px solid var(--green);
+}
+
+.tech-card.partial {
+    background:#493c20;
+    border-color:#a7863e;
+    border-left:4px solid var(--yellow);
+}
+
+.tech-id {
+    color:#8fcaff;
+    font-weight:bold;
+    font-size:10px;
+}
+
+.tech-name {
+    font-size:11px;
+    line-height:1.4;
+    margin-top:4px;
+}
+
+.tech-count {
+    font-size:9px;
+    color:#c3d3e3;
+    margin-top:5px;
+}
+
+.subtechniques {
+    margin:6px 0 0 9px;
+    padding-left:7px;
+    border-left:1px solid #61758c;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.sub-card {
+    font-size:10px;
+    color:#b9c9da;
+    padding:6px;
+    background:#101c2c;
+    border:1px solid #31455c;
+    border-radius:4px;
+    cursor:pointer;
+    line-height:1.4;
+}
+
+.sub-card.covered {
+    background:#126047;
+    border-color:#239a70;
+    color:white;
+}
+
+.sub-card:hover {border-color:var(--blue)}
+
+.hidden {display:none!important}
+
+/* RULE TABLE */
+
+.table-wrap {overflow-x:auto}
+
+table {
+    width:100%;
+    min-width:750px;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+th {
+    background:#20334c;
+    padding:12px;
+    text-align:left;
+}
+
+td {
+    padding:12px;
+    border-bottom:1px solid var(--border);
+}
+
+tr:hover td {background:#18283d}
+
+.tag {
+    background:#1b4569;
+    color:#9bd4ff;
+    padding:5px 8px;
+    border-radius:4px;
+}
+
+.modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:100;
+    background:#000c;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+}
+
+.modal-box {
+    width:100%;
+    max-width:650px;
+    max-height:85vh;
+    overflow-y:auto;
+    background:#142238;
+    border:1px solid #405571;
+    border-radius:10px;
+    padding:22px;
+}
+
+.modal-box h2 {color:#8dcaff}
+
+.modal-box p {
+    font-size:13px;
+    line-height:1.7;
+    color:#c0ccda;
+}
+
+.rule-item {
+    background:#1e314a;
+    padding:10px;
+    border-radius:5px;
+    margin:7px 0;
+    font-size:12px;
+}
+
+.footer {
+    padding:25px;
+    text-align:center;
+    color:var(--muted);
+    font-size:11px;
+}
+
+@media(max-width:850px) {
+    .stats {grid-template-columns:repeat(2,1fr)}
+    .two-col {grid-template-columns:1fr}
+    .container {padding:12px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <div class="logo">SOC <span>ATT&CK NAVIGATOR</span></div>
+        <small>Detection Engineering | MITRE Enterprise Framework</small>
+    </div>
+    <div>
+        <span class="status" id="dataStatus">Loading ATT&CK dataset...</span>
+    </div>
+</header>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+
+<div class="stats">
+    <div class="stat">
+        <small>TOTAL RULES</small>
+        <strong class="blue" id="totalRules">0</strong>
+    </div>
+
+    <div class="stat">
+        <small>MAPPED RULES</small>
+        <strong class="green" id="mappedRules">0</strong>
+    </div>
+
+    <div class="stat">
+        <small>UNMAPPED RULES</small>
+        <strong class="red" id="unmappedRules">0</strong>
+    </div>
+
+    <div class="stat">
+        <small>TECHNIQUES COVERED</small>
+        <strong class="green" id="coveredTechniques">0</strong>
+    </div>
+
+    <div class="stat">
+        <small>ATT&CK TECHNIQUES</small>
+        <strong class="yellow" id="totalTechniques">0</strong>
+    </div>
+</div>
+
+<!-- IMPORT RULES -->
+
+<div class="panel">
+    <h2>01 / Import SOC Detection Rules</h2>
+    <p class="muted">
+        Enter one detection rule per line. The mapper will suggest ATT&CK techniques.
+    </p>
+
+    <textarea id="rulesInput" placeholder="Multiple Failed Login Attempts
+PowerShell Encoded Command Execution
+Suspicious LSASS Memory Access
+Ransomware File Encryption
+Windows Scheduled Task Creation
+Suspicious DNS Tunneling
+SMB Lateral Movement
+Windows Defender Disabled"></textarea>
+
+    <div class="toolbar">
+        <button class="primary" onclick="mapRules()">MAP RULES TO MITRE</button>
+        <button class="secondary" onclick="loadExample()">LOAD EXAMPLE</button>
+
+        <label class="secondary" style="padding:10px;cursor:pointer;border-radius:5px;font-size:12px">
+            UPLOAD CSV
+            <input type="file" accept=".csv,.txt" id="fileInput"
+            style="display:none" onchange="uploadFile(event)">
+        </label>
+
+        <button class="secondary" onclick="clearRules()">CLEAR</button>
+    </div>
+
+    <div class="progress">
+        <div id="coverageProgress" style="width:0%"></div>
+    </div>
+
+    <small class="muted" id="coverageText">0% technique coverage</small>
+</div>
+
+<!-- MATRIX CONTROLS -->
+
+<div class="panel">
+    <h2>02 / MITRE ATT&CK Enterprise Matrix</h2>
+    <p class="muted">
+        Official Enterprise ATT&CK tactics, techniques and sub-techniques.
+        Green indicates a mapped SOC detection rule.
+    </p>
+
+    <div class="toolbar">
+        <input id="matrixSearch" placeholder="Search technique ID or name..."
+        oninput="renderMatrix()">
+
+        <select id="matrixFilter" onchange="renderMatrix()">
+            <option value="all">All techniques</option>
+            <option value="covered">Covered techniques</option>
+            <option value="uncovered">Uncovered techniques</option>
+        </select>
+
+        <select id="platformFilter" onchange="renderMatrix()">
+            <option value="all">All platforms</option>
+            <option value="Windows">Windows</option>
+            <option value="Linux">Linux</option>
+            <option value="macOS">macOS</option>
+        </select>
+
+        <button class="secondary" onclick="loadATTACK()">REFRESH DATASET</button>
+    </div>
+
+    <div class="toolbar">
+        <span class="status online">GREEN = DETECTED</span>
+        <span class="status" style="background:#493c20;color:#f5d57c">YELLOW = PARENT / PARTIAL</span>
+        <span class="status">GREY = NOT MAPPED</span>
+        <span class="status" id="matrixCount">0 techniques displayed</span>
+    </div>
+
+    <div class="matrix-shell">
+        <div class="matrix-scroll">
+            <div class="matrix" id="matrix">
+                <div class="muted">Loading MITRE ATT&CK matrix...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DETECTION RULE TABLE -->
+
+<div class="panel">
+    <h2>03 / Detection Mapping Results</h2>
+
+    <div class="toolbar">
+        <input id="ruleSearch" placeholder="Search rules..."
+        oninput="renderResults()">
+
+        <button class="success" onclick="exportCSV()">EXPORT CSV</button>
+        <button class="secondary" onclick="exportJSON()">EXPORT JSON</button>
+        <button class="secondary" onclick="exportNavigator()">EXPORT NAVIGATOR LAYER</button>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>SOC DETECTION RULE</th>
+                    <th>TECHNIQUE ID</th>
+                    <th>TECHNIQUE</th>
+                    <th>TACTIC</th>
+                    <th>CONFIDENCE</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <tr><td colspan="6" style="text-align:center">
+                    No detection rules imported.
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+<!-- TECHNIQUE DETAILS MODAL -->
+
+<div class="modal" id="techModal" onclick="outsideClose(event)">
+    <div class="modal-box">
+        <h2 id="modalTitle">Technique</h2>
+        <span class="tag" id="modalID"></span>
+        <p id="modalDescription"></p>
+
+        <h3>ATT&CK Information</h3>
+        <p id="modalTactics"></p>
+        <p id="modalPlatforms"></p>
+
+        <h3>Associated SOC Detection Rules</h3>
+        <div id="modalRules"></div>
+
+        <br>
+        <a id="modalLink" target="_blank" rel="noopener"
+        style="color:#65baff;font-size:13px">View on MITRE ATT&CK ↗</a>
+
+        <br><br>
+        <button class="secondary" onclick="closeModal()">CLOSE</button>
+    </div>
+</div>
+
+<div class="footer">
+    SOC ATT&CK Navigator | Uses official MITRE ATT&CK STIX data |
+    Mapping suggestions require analyst validation.
+</div>
+
+<script>
+
+// ==================================================
+// CONFIGURATION
+// ==================================================
+
+const ATTACK_URL =
+"https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json";
+
+const TACTIC_ORDER = [
+"reconnaissance",
+"resource-development",
+"initial-access",
+"execution",
+"persistence",
+"privilege-escalation",
+"defense-evasion",
+"credential-access",
+"discovery",
+"lateral-movement",
+"collection",
+"command-and-control",
+"exfiltration",
+"impact"
+];
+
+// Additional phrases that help map rule names to techniques.
+// Extend these aliases with your organization's detection vocabulary.
+
+const ALIASES = {
+"T1110":["failed login","failed logon","brute force","password spray"],
+"T1078":["valid account","compromised account","stolen credentials"],
+"T1059":["command execution","script execution","powershell execution"],
+"T1059.001":["powershell","encoded powershell","powershell encoded command"],
+"T1053.005":["scheduled task","schtasks","task scheduler"],
+"T1003.001":["lsass","lsass memory","mimikatz"],
+"T1003":["credential dumping","password dumping","sam dump"],
+"T1021.001":["rdp","remote desktop"],
+"T1021.002":["smb lateral movement","admin shares","psexec"],
+"T1071.004":["dns tunneling","dns beacon","dns command and control"],
+"T1486":["ransomware","file encryption","mass encryption"],
+"T1490":["shadow copy deletion","vssadmin","disable recovery"],
+"T1562.001":["disable defender","disable antivirus","edr disabled"],
+"T1112":["registry modification","registry change"],
+"T1055":["process injection","dll injection","process hollowing"],
+"T1027":["base64 encoded","obfuscated payload","payload obfuscation"],
+"T1105":["download payload","tool transfer","download executable"],
+"T1046":["port scanning","nmap","network service discovery"],
+"T1057":["process discovery","tasklist"],
+"T1087":["user enumeration","account discovery","net user"],
+"T1070.001":["clear event logs","wevtutil","event log cleared"],
+"T1136.001":["local account creation","new local user"],
+"T1566.001":["malicious email attachment","phishing attachment"],
+"T1566.002":["phishing link","malicious email link"],
+"T1496":["cryptomining","crypto miner"],
+"T1555":["browser password","saved passwords","password store"]
+};
+
+// ==================================================
+// STATE
+// ==================================================
+
+let stixObjects = [];
+let tactics = [];
+let attackTechniques = [];
+let relationships = [];
+let results = [];
+let activeTechnique = null;
+
+// ==================================================
+// DATA HELPERS
+// ==================================================
+
+function externalID(obj) {
+    const ref = (obj.external_references || [])
+        .find(x => x.source_name === "mitre-attack");
+    return ref ? ref.external_id : null;
+}
+
+function tacticSlug(phase) {
+    return phase;
+}
+
+function getTechniqueURL(id) {
+    return "https://attack.mitre.org/techniques/" +
+        id.replace(".", "/") + "/";
+}
+
+function escapeHTML(value) {
+    return String(value || "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+// ==================================================
+// LOAD OFFICIAL MITRE DATASET
+// ==================================================
+
+async function loadATTACK() {
+
+    const status = document.getElementById("dataStatus");
+
+    status.textContent = "Loading official ATT&CK data...";
+
+    try {
+
+        const response = await fetch(ATTACK_URL, {
+            cache:"no-cache"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        stixObjects = data.objects || [];
+
+        parseDataset();
+
+        status.textContent =
+            "Official ATT&CK dataset loaded";
+
+        status.classList.add("online");
+
+        renderMatrix();
+        updateDashboard();
+
+    } catch(error) {
+
+        status.textContent = "Dataset unavailable";
+
+        document.getElementById("matrix").innerHTML = `
+            <div class="muted">
+                Unable to load the official MITRE dataset.
+                Check your internet connection or CORS access.
+                <br><br>
+                ${escapeHTML(error.message)}
+                <br><br>
+                You can still use the mapping and export functions
+                for previously loaded rules.
+            </div>
+        `;
+
+    }
+}
+
+// ==================================================
+// PARSE STIX DATA
+// ==================================================
+
+function parseDataset() {
+
+    const tacticObjects = stixObjects.filter(o =>
+        o.type === "x-mitre-tactic" &&
+        !o.revoked &&
+        !o.x_mitre_deprecated
+    );
+
+    tactics = tacticObjects.map(t => ({
+        id:externalID(t),
+        name:t.name,
+        slug:t.x_mitre_shortname,
+        description:t.description || ""
+    }));
+
+    const rawTechniques = stixObjects.filter(o =>
+        o.type === "attack-pattern" &&
+        !o.revoked &&
+        !o.x_mitre_deprecated &&
+        externalID(o)
+    );
+
+    relationships = stixObjects.filter(o =>
+        o.type === "relationship" &&
+        o.relationship_type === "subtechnique-of"
+    );
+
+    const parents = {};
+
+    relationships.forEach(r => {
+        parents[r.source_ref] = r.target_ref;
+    });
+
+    attackTechniques = rawTechniques.map(t => {
+
+        const phases = (t.kill_chain_phases || [])
+            .filter(p => p.kill_chain_name === "mitre-attack")
+            .map(p => p.phase_name);
+
+        const platforms = t.x_mitre_platforms || [];
+
+        return {
+            stixID:t.id,
+            id:externalID(t),
+            name:t.name,
+            description:t.description || "No description available.",
+            tactics:phases,
+            platforms,
+            isSub:t.x_mitre_is_subtechnique === true,
+            parentStixID:parents[t.id] || null,
+            url:getTechniqueURL(externalID(t))
+        };
+
+    });
+
+    // Build the matrix hierarchy.
+
+    attackTechniques.forEach(t => {
+
+        if (t.isSub && t.parentStixID) {
+
+            const parent = attackTechniques.find(
+                p => p.stixID === t.parentStixID
+            );
+
+            if (parent) {
+                t.parentID = parent.id;
+            }
+
+        }
+
+    });
+
+}
+
+// ==================================================
+// RULE MAPPING ENGINE
+// ==================================================
+
+function normalize(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9. ]/g," ")
+        .replace(/\s+/g," ")
+        .trim();
+}
+
+function scoreTechnique(rule, tech) {
+
+    const text = normalize(rule);
+    const name = normalize(tech.name);
+
+    let score = 0;
+
+    // Exact technique ID match.
+    if (text.includes(normalize(tech.id))) {
+        score += 100;
+    }
+
+    // Technique name match.
+    if (name.length > 3 && text.includes(name)) {
+        score += 85;
+    }
+
+    // Custom aliases.
+    const aliases = ALIASES[tech.id] || [];
+
+    aliases.forEach(alias => {
+
+        if (text.includes(normalize(alias))) {
+            score += alias.length > 12 ? 70 : 55;
+        }
+
+    });
+
+    // Token overlap provides a weaker fallback.
+    const tokens = name.split(" ").filter(
+        w => w.length > 3 && !["from","with","over","using"].includes(w)
+    );
+
+    const matched = tokens.filter(w => text.includes(w));
+
+    if (tokens.length && matched.length) {
+        score += Math.round(
+            (matched.length / tokens.length) * 35
+        );
+    }
+
+    return Math.min(score,98);
+}
+
+function analyzeRule(rule) {
+
+    const matches = attackTechniques.map(t => ({
+        technique:t,
+        score:scoreTechnique(rule,t)
+    }))
+    .filter(x => x.score >= 35)
+    .sort((a,b) => b.score-a.score);
+
+    // Keep the best match by default.
+    return matches.slice(0,1);
+
+}
+
+// ==================================================
+// MAP RULES
+// ==================================================
+
+function mapRules() {
+
+    if (!attackTechniques.length) {
+        alert("Please wait for the MITRE ATT&CK dataset to load.");
+        return;
+    }
+
+    const input = document.getElementById("rulesInput").value;
+
+    const ruleNames = [...new Set(
+        input.split(/\r?\n/)
+        .map(x=>x.trim())
+        .filter(Boolean)
+    )];
+
+    if (!ruleNames.length) {
+        alert("Enter at least one detection rule.");
+        return;
+    }
+
+    results = [];
+
+    ruleNames.forEach(rule => {
+
+        const matches = analyzeRule(rule);
+
+        if (!matches.length) {
+
+            results.push({
+                rule,
+                techniqueId:"UNMAPPED",
+                technique:"No matching technique",
+                tactic:"Unmapped",
+                confidence:0,
+                manual:false
+            });
+
+            return;
+        }
+
+        matches.forEach(m => {
+
+            m.technique.tactics.forEach(tacticSlug => {
+
+                const tactic = tactics.find(t =>
+                    t.slug === tacticSlug
+                );
+
+                results.push({
+                    rule,
+                    techniqueId:m.technique.id,
+                    technique:m.technique.name,
+                    tactic:tactic ? tactic.name : tacticSlug,
+                    tacticSlug,
+                    confidence:m.score,
+                    manual:false
+                });
+
+            });
+
+        });
+
+    });
+
+    updateDashboard();
+    renderMatrix();
+    renderResults();
+
+}
+
+// ==================================================
+// MATRIX COVERAGE HELPERS
+// ==================================================
+
+function coverageFor(id) {
+    return results.filter(r => r.techniqueId === id);
+}
+
+function isCovered(id) {
+    return coverageFor(id).length > 0;
+}
+
+function isParentPartial(tech) {
+
+    if (isCovered(tech.id)) return false;
+
+    return attackTechniques.some(t =>
+        t.parentID === tech.id && isCovered(t.id)
+    );
+
+}
+
+// ==================================================
+// MATRIX RENDERER
+// ==================================================
+
+function renderMatrix() {
+
+    if (!tactics.length || !attackTechniques.length) return;
+
+    const matrix = document.getElementById("matrix");
+
+    const query = normalize(
+        document.getElementById("matrixSearch").value
+    );
+
+    const filter = document.getElementById("matrixFilter").value;
+
+    const platform = document.getElementById("platformFilter").value;
+
+    const orderedTactics = [...tactics].sort((a,b) => {
+
+        const ai = TACTIC_ORDER.indexOf(a.slug);
+        const bi = TACTIC_ORDER.indexOf(b.slug);
+
+        return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+
+    });
+
+    matrix.style.gridTemplateColumns =
+        `repeat(${orderedTactics.length}, minmax(190px, 1fr))`;
+
+    matrix.innerHTML = "";
+
+    let visibleCount = 0;
+
+    orderedTactics.forEach(tactic => {
+
+        const column = document.createElement("div");
+        column.className = "tactic-column";
+
+        const header = document.createElement("div");
+        header.className = "tactic-header";
+
+        const tacticTechniques = attackTechniques.filter(t =>
+            !t.isSub && t.tactics.includes(tactic.slug)
+        );
+
+        header.innerHTML = `
+            <strong>${escapeHTML(tactic.name)}</strong>
+            <small>${tacticTechniques.length} parent techniques</small>
+            <small>${escapeHTML(tactic.id || "")}</small>
+        `;
+
+        column.appendChild(header);
+
+        const list = document.createElement("div");
+        list.className = "tech-list";
+
+        tacticTechniques.forEach(tech => {
+
+            const subs = attackTechniques.filter(t =>
+                t.isSub &&
+                t.parentID === tech.id &&
+                t.tactics.includes(tactic.slug)
+            );
+
+            const allItems = [tech,...subs];
+
+            const matching = allItems.some(t =>
+                normalize(t.name+" "+t.id).includes(query)
+            );
+
+            if (query && !matching) return;
+
+            if (filter === "covered" &&
+                !allItems.some(t=>isCovered(t.id))) return;
+
+            if (filter === "uncovered" &&
+                allItems.every(t=>isCovered(t.id))) return;
+
+            if (platform !== "all" &&
+                !allItems.some(t=>t.platforms.includes(platform))) return;
+
+            visibleCount++;
+
+            const covered = isCovered(tech.id);
+
+            const partial = isParentPartial(tech);
+
+            const card = document.createElement("div");
+
+            card.className = "tech-card" +
+                (covered ? " covered" : partial ? " partial" : "");
+
+            const count = coverageFor(tech.id).length;
+
+            card.innerHTML = `
+                <div class="tech-id">${escapeHTML(tech.id)}</div>
+                <div class="tech-name">${escapeHTML(tech.name)}</div>
+                ${count ? `<div class="tech-count">${count} detection mapping(s)</div>` : ""}
+            `;
+
+            card.onclick = () => showTechnique(tech.id);
+
+            list.appendChild(card);
+
+            if (subs.length) {
+
+                const subContainer = document.createElement("div");
+                subContainer.className = "subtechniques";
+
+                subs.forEach(sub => {
+
+                    const subCovered = isCovered(sub.id);
+
+                    const subMatches = normalize(
+                        sub.id+" "+sub.name
+                    ).includes(query);
+
+                    if (query && !subMatches && matching &&
+                        !normalize(tech.id+" "+tech.name).includes(query)) {
+                        return;
+                    }
+
+                    if (filter === "covered" && !subCovered) return;
+
+                    if (filter === "uncovered" && subCovered) return;
+
+                    if (platform !== "all" &&
+                        !sub.platforms.includes(platform)) return;
+
+                    const subCard = document.createElement("div");
+
+                    subCard.className = "sub-card" +
+                        (subCovered ? " covered" : "");
+
+                    subCard.innerHTML =
+                        `<b>${escapeHTML(sub.id)}</b><br>` +
+                        escapeHTML(sub.name) +
+                        (subCovered ?
+                            `<br>✓ ${coverageFor(sub.id).length} mapping(s)` : "");
+
+                    subCard.onclick = e => {
+                        e.stopPropagation();
+                        showTechnique(sub.id);
+                    };
+
+                    subContainer.appendChild(subCard);
+
+                });
+
+                if (subContainer.children.length) {
+                    list.appendChild(subContainer);
+                }
+
+            }
+
+        });
+
+        if (!list.children.length) {
+
+            const empty = document.createElement("div");
+            empty.className = "muted";
+            empty.style.padding = "10px";
+            empty.textContent = "No matching techniques";
+
+            list.appendChild(empty);
+
+        }
+
+        column.appendChild(list);
+        matrix.appendChild(column);
+
+    });
+
+    document.getElementById("matrixCount").textContent =
+        visibleCount + " parent techniques displayed";
+
+}
+
+// ==================================================
+// TECHNIQUE DETAIL MODAL
+// ==================================================
+
+function showTechnique(id) {
+
+    const tech = attackTechniques.find(t=>t.id === id);
+
+    if (!tech) return;
+
+    activeTechnique = tech;
+
+    const mapped = coverageFor(id);
+
+    document.getElementById("modalTitle").textContent = tech.name;
+
+    document.getElementById("modalID").textContent = tech.id;
+
+    document.getElementById("modalDescription").textContent =
+        tech.description;
+
+    const tacticNames = tech.tactics.map(slug => {
+        const tactic = tactics.find(t=>t.slug === slug);
+        return tactic ? tactic.name : slug;
+    });
+
+    document.getElementById("modalTactics").innerHTML =
+        "<b>Tactics:</b> " + escapeHTML(tacticNames.join(", "));
+
+    document.getElementById("modalPlatforms").innerHTML =
+        "<b>Platforms:</b> " +
+        escapeHTML(tech.platforms.join(", ") || "Not specified");
+
+    const ruleContainer = document.getElementById("modalRules");
+
+    if (mapped.length) {
+
+        ruleContainer.innerHTML = mapped.map(r => `
+            <div class="rule-item">
+                <b>${escapeHTML(r.rule)}</b>
+                <br>
+                Confidence: ${r.confidence}%
+            </div>
+        `).join("");
+
+    } else {
+
+        ruleContainer.innerHTML =
+            '<div class="rule-item">No SOC detection rules mapped to this technique.</div>';
+
+    }
+
+    document.getElementById("modalLink").href = tech.url;
+
+    document.getElementById("techModal").style.display = "flex";
+
+}
+
+function closeModal() {
+    document.getElementById("techModal").style.display = "none";
+}
+
+function outsideClose(event) {
+    if (event.target.id === "techModal") closeModal();
+}
+
+// ==================================================
+// RESULTS TABLE
+// ==================================================
+
+function renderResults() {
+
+    const body = document.getElementById("resultsBody");
+
+    const query = normalize(
+        document.getElementById("ruleSearch").value
+    );
+
+    const filtered = results.filter(r =>
+        normalize(
+            r.rule+" "+r.techniqueId+" "+r.technique+" "+r.tactic
+        ).includes(query)
+    );
+
+    if (!filtered.length) {
+
+        body.innerHTML =
+            '<tr><td colspan="6">No results found.</td></tr>';
+
+        return;
+    }
+
+    body.innerHTML = filtered.map(r => {
+
+        const index = results.indexOf(r);
+
+        return `
+            <tr>
+                <td>${escapeHTML(r.rule)}</td>
+                <td><span class="tag">${escapeHTML(r.techniqueId)}</span></td>
+                <td>${escapeHTML(r.technique)}</td>
+                <td>${escapeHTML(r.tactic)}</td>
+                <td>${r.confidence}%</td>
+                <td>
+                    ${r.techniqueId !== "UNMAPPED" ?
+                    `<button class="secondary"
+                    onclick="showTechnique('${escapeHTML(r.techniqueId)}')">
+                    VIEW
+                    </button>` : "—"}
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+
+}
+
+// ==================================================
+// DASHBOARD
+// ==================================================
+
+function updateDashboard() {
+
+    const total = new Set(results.map(r=>r.rule)).size;
+
+    const mapped = new Set(
+        results.filter(r=>r.techniqueId !== "UNMAPPED")
+        .map(r=>r.rule)
+    ).size;
+
+    const covered = new Set(
+        results.filter(r=>r.techniqueId !== "UNMAPPED")
+        .map(r=>r.techniqueId)
+    ).size;
+
+    const totalTech = attackTechniques.length;
+
+    const percent = totalTech ?
+        Math.round(covered/totalTech*100) : 0;
+
+    document.getElementById("totalRules").textContent = total;
+
+    document.getElementById("mappedRules").textContent = mapped;
+
+    document.getElementById("unmappedRules").textContent = total-mapped;
+
+    document.getElementById("coveredTechniques").textContent = covered;
+
+    document.getElementById("totalTechniques").textContent = totalTech;
+
+    document.getElementById("coverageProgress").style.width =
+        percent+"%";
+
+    document.getElementById("coverageText").textContent =
+        percent+"% of Enterprise techniques have mapped rules";
+
+}
+
+// ==================================================
+// IMPORT / EXAMPLE
+// ==================================================
+
+function loadExample() {
+
+    document.getElementById("rulesInput").value = `
+Multiple Failed Login Attempts
+PowerShell Encoded Command Execution
+Suspicious LSASS Memory Access
+Ransomware File Encryption
+Windows Scheduled Task Creation
+Suspicious DNS Tunneling
+SMB Lateral Movement
+Windows Defender Disabled
+Credential Dumping Using Mimikatz
+New Windows Service Installed
+Suspicious RDP Connection
+Port Scanning Activity
+Malicious Email Attachment
+Shadow Copy Deletion
+Suspicious Process Injection
+Browser Password Extraction
+DNS Beaconing Activity
+Unauthorized Cryptomining
+Clearing Windows Event Logs
+WMI Event Subscription Creation
+Suspicious File Download
+Local User Account Creation
+Network Host Discovery
+    `.trim();
+
+}
+
+function clearRules() {
+
+    if (!confirm("Clear rules and all current mappings?")) return;
+
+    document.getElementById("rulesInput").value = "";
+
+    results = [];
+
+    updateDashboard();
+    renderMatrix();
+    renderResults();
+
+}
+
+function uploadFile(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+
+        const lines = e.target.result.split(/\r?\n/);
+
+        const names = lines.map(line => {
+
+            const match = line.match(
+                /^\s*(?:"((?:[^"]|"")*)"|([^,]*))/
+            );
+
+            return match ?
+                (match[1] || match[2] || "").replace(/""/g,'"').trim() :
+                "";
+
+        }).filter(Boolean);
+
+        const cleaned = names.filter((name,i) =>
+            !(i === 0 && /^(rule name|name|title)$/i.test(name))
+        );
+
+        document.getElementById("rulesInput").value =
+            cleaned.join("\n");
+
+    };
+
+    reader.readAsText(file);
+
+    event.target.value = "";
+
+}
+
+// ==================================================
+// EXPORT CSV
+// ==================================================
+
+function downloadFile(content,filename,type) {
+
+    const blob = new Blob([content],{type});
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = filename;
+
+    a.click();
+
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+}
+
+function exportCSV() {
+
+    if (!results.length) {
+        alert("No mappings to export.");
+        return;
+    }
+
+    const headers = [
+        "Rule Name",
+        "Technique ID",
+        "Technique Name",
+        "Tactic",
+        "Confidence"
+    ];
+
+    const rows = results.map(r=>[
+        r.rule,r.techniqueId,r.technique,r.tactic,r.confidence
+    ]);
+
+    const csv = [headers,...rows].map(row=>
+        row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")
+    ).join("\n");
+
+    downloadFile("\uFEFF"+csv,
+        "soc_mitre_mapping.csv",
+        "text/csv;charset=utf-8");
+
+}
+
+// ==================================================
+// EXPORT JSON
+// ==================================================
+
+function exportJSON() {
+
+    if (!results.length) {
+        alert("No mappings to export.");
+        return;
+    }
+
+    downloadFile(
+        JSON.stringify(results,null,2),
+        "soc_mitre_mapping.json",
+        "application/json"
+    );
+
+}
+
+// ==================================================
+// EXPORT MITRE NAVIGATOR LAYER
+// ==================================================
+
+function exportNavigator() {
+
+    const mapped = {};
+
+    results.forEach(r=>{
+
+        if (r.techniqueId === "UNMAPPED") return;
+
+        const tech = attackTechniques.find(
+            t=>t.id === r.techniqueId
+        );
+
+        if (!tech) return;
+
+        tech.tactics.forEach(slug=>{
+
+            const key = r.techniqueId+"|"+slug;
+
+            if (!mapped[key]) {
+
+                mapped[key] = {
+                    techniqueID:r.techniqueId,
+                    tactic:slug,
+                    score:r.confidence,
+                    enabled:true,
+                    comment:"SOC detection rules: "+r.rule
+                };
+
+            } else {
+
+                mapped[key].score = Math.max(
+                    mapped[key].score,
+                    r.confidence
+                );
+
+                mapped[key].comment += "; "+r.rule;
+
+            }
+
+        });
+
+    });
+
+    const layer = {
+
+        name:"SOC Detection Coverage",
+
+        versions:{
+            attack:"18",
+            navigator:"5.2.0",
+            layer:"4.5"
+        },
+
+        domain:"enterprise-attack",
+
+        description:
+            "SOC detection rules mapped to MITRE ATT&CK. " +
+            "Mappings require analyst validation.",
+
+        sorting:3,
+
+        layout:{
+            layout:"side",
+            showID:true,
+            showName:true,
+            showAggregateScores:true,
+            aggregateFunction:"average"
+        },
+
+        hideDisabled:false,
+
+        techniques:Object.values(mapped),
+
+        gradient:{
+            colors:["#f2f2f2","#f1c453","#21bd83"],
+            minValue:0,
+            maxValue:100
+        },
+
+        legendItems:[
+            {
+                label:"Detection confidence",
+                color:"#21bd83"
+            }
+        ]
+
+    };
+
+    downloadFile(
+        JSON.stringify(layer,null,2),
+        "soc_detection_coverage_layer.json",
+        "application/json"
+    );
+
+}
+
+// ==================================================
+// START APPLICATION
+// ==================================================
+
+updateDashboard();
+
+loadATTACK();
+
+</script>
+</body>
+</html>
